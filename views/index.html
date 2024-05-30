@@ -66,7 +66,7 @@
 
         $.ajax({
           type: 'POST',
-          url: 'https://mongo-node-task.onrender.com/server/create',
+          url: 'https://node-task-m7sx.onrender.com/server/create',
           contentType: 'application/json',
           data: JSON.stringify(formData),
           success: function (data) {
@@ -114,7 +114,7 @@
   <script>
     $(document).ready(function () {
       $.ajax({
-        url: 'https://mongo-node-task.onrender.com/server/display_data',
+        url: 'https://node-task-m7sx.onrender.com/server/display_data',
         method: 'GET',
         success: function (data) {
           data.forEach(user => {
