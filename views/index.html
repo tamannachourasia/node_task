@@ -41,6 +41,7 @@
     <input type="password" id="password" name="password" required><br><br>
 
     <input type="submit" value="Save">
+    <button type="button" id="showData">Show Data</button>
   </form>
 <a href="https://node-task-m7sx.onrender.com" target="_blank">Go to Create User Form</a>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -77,6 +78,9 @@
             alert('Error creating user: ' + error.responseJSON.error);
           }
         });
+      });
+      $('#showData').click(function () {
+        window.open('https://node-task-m7sx.onrender.com/server/display_data', '_blank');
       });
     });
   </script>
