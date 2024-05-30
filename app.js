@@ -34,12 +34,12 @@ const createuserRouter=require('./routes/createuser')
 
 var app = express();
 
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files from the "views" directory
+app.use(express.static(path.join(__dirname, 'views')));
 
 // Route for serving the HTML file
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
 
 // view engine setup
