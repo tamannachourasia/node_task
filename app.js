@@ -27,7 +27,32 @@ mongoose.connection.on('error', (err) => {
 // User model
 const User = require('./routes/models/user');
 
+<<<<<<< HEAD
 // Middleware setup
+=======
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+var serverRouter= require('./routes/server')
+const User=require('./routes/models/user')
+const createuserRouter=require('./routes/createuser')
+
+
+var app = express();
+
+// Serve static files from the "views" directory
+app.use(express.static(path.join(__dirname, 'views')));
+
+// Route for serving the HTML file
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'index.html'));
+});
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+
+>>>>>>> 25863aee25c8b54690a65769beee79aad495e03f
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
