@@ -24,20 +24,15 @@ mongoose.connection.on('error', (err) => {
   console.log('Error connecting to MongoDB Atlas:', err);
 });
 
-// User model
-const User = require('./routes/models/user');
-
-<<<<<<< HEAD
 // Middleware setup
-=======
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var serverRouter= require('./routes/server')
 const User=require('./routes/models/user')
 const createuserRouter=require('./routes/createuser')
+var socketRouter=require('./routes/socket')
 
-
-var app = express();
 
 // Serve static files from the "views" directory
 app.use(express.static(path.join(__dirname, 'views')));
@@ -47,12 +42,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
 
-
->>>>>>> 25863aee25c8b54690a65769beee79aad495e03f
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -63,13 +53,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
-// Routes
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var serverRouter = require('./routes/server');
-var socketRouter = require('./routes/socket');
-var createuserRouter = require('./routes/createuser');
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
