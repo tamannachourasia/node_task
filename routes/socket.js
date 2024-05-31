@@ -1,32 +1,19 @@
-// In your Node.js server using Socket.IO and MongoDB
-const io = require('socket.io')(httpServer);
-const User = require('./models/user'); // Assuming you have a User model
+const express = require('express');
+const router = express.Router();
+const User = require('./models/user');
 
-io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id);
-
-  socket.on('insertUser', async (userData) => {
-    try {
-      // Insert user data into MongoDB
-      const user = new User(userData);
-      await user.save();
-
-      // Join the user into the "live user" room
-      socket.join('live user');
-
-      // Store user's email, name, and socket ID in local variable
-      const userSocketInfo = {
-        email: user.email,
-        name: user.firstName + ' ' + user.lastName,
-        socketId: socket.id,
-      };
-      // You can store this info in a global object or an array
-      // For example: connectedUsers.push(userSocketInfo);
-
-      // Emit an event to update clients about the new user
-      io.to('live user').emit('userJoined', userSocketInfo);
-    } catch (error) {
-      console.error('Error inserting user:', error);
-    }
-  });
+router.post('/join', (req, res) => {
+  const { email, name, socketId } = req.body;
+  const newUser = new User({ email, name, socketId });
+  newUser.save()
+    .then(() => res.status(201).send('User joined the room'))
+    .catch(err => res.status(400).send('Error joining the room: ' + err));
 });
+
+router.get('/users', (req, res) => {
+  User.find()
+    .then(users => res.json(users))
+    .catch(err => res.status(400).send('Error fetching users: ' + err));
+});
+
+module.exports = router;
