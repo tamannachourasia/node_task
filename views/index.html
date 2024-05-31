@@ -56,17 +56,10 @@
     <h1>Create User</h1>
 
     <label for="firstName">First Name:</label>
-<<<<<<< HEAD
     <input type="text" id="firstName" name="firstName" required pattern="[A-Za-z\s]+" title="Only alphabets are allowed">
 
     <label for="lastName">Last Name:</label>
     <input type="text" id="lastName" name="lastName" required pattern="[A-Za-z\s]+" title="Only alphabets are allowed">
-=======
-    <input type="text" id="firstName" name="firstName" required pattern="[A-Za-z\s]+" title="Only alphabets are allowed"><br><br>
-
-    <label for="lastName">Last Name:</label>
-    <input type="text" id="lastName" name="lastName" required pattern="[A-Za-z\s]+" title="Only alphabets are allowed"><br><br>
->>>>>>> 25863aee25c8b54690a65769beee79aad495e03f
 
     <label for="mobileNo">Mobile Number:</label>
     <input type="text" id="mobileNo" name="mobileNo" pattern="\d{10}" required title="Enter 10 digit mobile number">
@@ -78,7 +71,6 @@
     <input type="text" id="street" name="street" required>
 
     <label for="city">City:</label>
-<<<<<<< HEAD
     <input type="text" id="city" name="city" required pattern="[A-Za-z\s]+" title="Only alphabets are allowed">
 
     <label for="state">State:</label>
@@ -86,15 +78,6 @@
 
     <label for="country">Country:</label>
     <input type="text" id="country" name="country" required pattern="[A-Za-z\s]+" title="Only alphabets are allowed">
-=======
-    <input type="text" id="city" name="city" required pattern="[A-Za-z\s]+" title="Only alphabets are allowed"><br><br>
-
-    <label for="state">State:</label>
-    <input type="text" id="state" name="state" required pattern="[A-Za-z\s]+" title="Only alphabets are allowed"><br><br>
-
-    <label for="country">Country:</label>
-    <input type="text" id="country" name="country" required pattern="[A-Za-z\s]+" title="Only alphabets are allowed"><br><br>
->>>>>>> 25863aee25c8b54690a65769beee79aad495e03f
 
     <label for="loginId">Login ID:</label>
     <input type="text" id="loginId" name="loginId" required>
@@ -105,7 +88,7 @@
     <input type="submit" value="Save">
     <button type="button" id="showData">Show Data</button>
   </form>
-<<<<<<< HEAD
+
   <div class="user-data"></div>
 </body>
 </html>
@@ -122,9 +105,9 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script> -->
-=======
-<a href="https://node-task-m7sx.onrender.com" target="_blank">Go to Create User Form</a>
->>>>>>> 25863aee25c8b54690a65769beee79aad495e03f
+
+<!-- <a href="https://node-task-m7sx.onrender.com" target="_blank">Go to Create User Form</a> -->
+
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
     $(document).ready(function () {
@@ -161,7 +144,7 @@
           }
         });
       });
-<<<<<<< HEAD
+
       // $('#showData').click(function () {
       //   window.open('https://node-task-m7sx.onrender.com/server/display_data', '_blank');
       // });
@@ -172,76 +155,21 @@
           success: function(response) {
             const userData = response.map(user => JSON.stringify(user, null, 2)).join('\n');
             $('.user-data').html('<h2>User Data</h2><pre>' + userData + '</pre>');
+            $('#createUserForm').hide();
           },
           error: function(error) {
             alert('Error fetching users');
           }
         });
-        $('#createUserForm').hide();
-=======
+        
+
       $('#showData').click(function () {
         window.open('https://node-task-m7sx.onrender.com/server/display_data', '_blank');
       });
     });
-  </script>
-</body>
 
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Users List</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-  <h1>Users List</h1>
-  <table border="1">
-    <thead>
-      <tr>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Mobile No</th>
-        <th>Email</th>
-        <th>Address</th>
-        <th>Login ID</th>
-        <th>Creation Time</th>
-        <th>Last Updated On</th>
-      </tr>
-    </thead>
-    <tbody id="users-table">
-    </tbody>
-  </table>
-
-  <script>
-    $(document).ready(function () {
-      $.ajax({
-        url: 'https://node-task-m7sx.onrender.com/server/display_data',
-        method: 'GET',
-        success: function (data) {
-          data.forEach(user => {
-            $('#users-table').append(`
-              <tr>
-                <td>${user.firstName}</td>
-                <td>${user.lastName}</td>
-                <td>${user.mobileNo}</td>
-                <td>${user.email}</td>
-                <td>${user.address.street}, ${user.address.city}, ${user.address.state}, ${user.address.country}</td>
-                <td>${user.loginId}</td>
-                <td>${new Date(user.creationTime).toLocaleString()}</td>
-                <td>${new Date(user.lastUpdatedOn).toLocaleString()}</td>
-              </tr>
-            `);
-          });
-        },
-        error: function (err) {
-          console.error('Error fetching users:', err);
-        }
->>>>>>> 25863aee25c8b54690a65769beee79aad495e03f
-      });
-    //   const socket = io();
+  
+    // const socket = io();
 
     //   socket.on('connect', () => {
     //     const userData = {
@@ -282,54 +210,4 @@
 </body>
 
 </html>
-<<<<<<< HEAD
-=======
 
-
-
-<!--  HTML page to display joined users -->
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Users</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-  <h1>Live Users</h1>
-  <ul id="liveUsersList"></ul>
-
-  <script>
-    const socket = io('http://localhost:3000'); // Change the URL as per your server
-    const liveUsersList = $('#liveUsersList');
-
-    socket.on('userJoined', (userSocketInfo) => {
-      // Add the new user to the list
-      const listItem = `<li>Email: ${userSocketInfo.email}, Socket ID: ${userSocketInfo.socketId}</li>`;
-      liveUsersList.append(listItem);
-    });
-  </script>
-</body>
-</html>
-<script>
-  // jQuery/AJAX to call the web service on click
-$(document).on('click', 'li', function() {
-  const email = $(this).text().split(',')[0].split(':')[1].trim(); // Extract email from the list item
-  // Call the web service with the email
-  $.ajax({
-    url: 'http://localhost:3000/server/users', // Endpoint of your web service
-    type: 'GET',
-    data: { email: email },
-    success: function(response) {
-      alert('User Information:\n' + JSON.stringify(response));
-    },
-    error: function(error) {
-      alert('Error fetching user information: ' + error.responseText);
-    }
-  });
-});
-
-</script> -->
->>>>>>> 25863aee25c8b54690a65769beee79aad495e03f
