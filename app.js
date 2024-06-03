@@ -84,11 +84,6 @@ app.use('/server', serverRouter);
 app.use('/createuser', createuserRouter);
 app.use('/socket', socketRouter);
 
-// Catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
-});
-
 // Error handler
 app.use(function (err, req, res, next) {
   res.locals.message = err.message;
@@ -106,17 +101,17 @@ const UserSchema = new mongoose.Schema({
 const User = mongoose.model('User', UserSchema);
 let liveUsers = {};
 
-app.post('/add-user', async (req, res) => {
+app.post('/addUser', async function(req, res)  {
   console.log('Received request to /add-user');
   const { email, name } = req.body;
   console.log('Request body:', req.body); 
   const newUser = new User({ email, name });
-  await newUser.save();
-
+  const response=await newUser.save();
+  console.log(response)
   res.status(201).send('User added');
 });
 
-app.get('/user-info', async (req, res) => {
+app.get('/userinfo', async (req, res) => {
   const { email, socketId } = req.query;
   let user;
 
@@ -160,6 +155,10 @@ io.on('connection', (socket) => {
   });
 });
 
+// Catch 404 and forward to error handler
+app.use(function (req, res, next) {
+  next(createError(404));
+});
 
 // Start server
 server.listen(port, () => {
