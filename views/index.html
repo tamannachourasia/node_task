@@ -221,7 +221,7 @@
       e.preventDefault();
       const email = $('#email').val();
       const name = $('#name').val();
-      console.log('Before fetch');
+      
       $.ajax({
         url: '/addUser',
         type: 'POST',
@@ -272,14 +272,17 @@
   <style>
     .popup {
       position: fixed;
-      right: 20px; /* Adjust as needed */
-      top: 50%; /* Center vertically */
+      right: 20px;
+      /* Adjust as needed */
+      top: 50%;
+      /* Center vertically */
       transform: translateY(-50%);
       background-color: green;
       color: white;
       padding: 10px;
       border-radius: 5px;
-      display: none; /* Initially hidden */
+      display: none;
+      /* Initially hidden */
     }
   </style>
   <script src="/socket.io/socket.io.js"></script>
@@ -290,14 +293,14 @@
   <h1>Live Users</h1>
   <div id="userList"></div>
 
-  <div class="popup" id="joinPopup"></div>
+  <div class="popup" id="joinPopup">aaabbccc</div>
 
   <script>
     $(document).ready(() => {
       const socket = io();
 
       socket.on('new-user', (users) => {
-        displayUsers(users);
+        fetchUserList(users); // Update user list when new user joins
       });
 
       socket.on('user-disconnected', (socketId) => {
@@ -318,13 +321,31 @@
           userList.append(userDiv);
         }
 
-        $('.user-info').on('click', function (e) {
-          e.preventDefault();
-          const email = $(this).data('email');
-          const socketId = $(this).data('socketid');
-          fetchUserInfo(email, socketId);
-        });
+        // Show the popup after the list is populated
+        showPopup('List loaded successfully.');
       }
+
+      function showPopup(message) {
+        const popup = $('#joinPopup');
+        popup.text(message);
+        popup.fadeIn(500).delay(2000).fadeOut(500); // Show for 2 seconds
+      }
+
+      // Fetch user list initially
+      function fetchUserList(users) {
+        // Simulating fetching user list data
+        setTimeout(() => {
+          displayUsers(users);
+        }, 1000); // Delay added for simulation, replace with actual data loading code
+      }
+
+      // Click event for user info links
+      $(document).on('click', '.user-info', function (e) {
+        e.preventDefault();
+        const email = $(this).data('email');
+        const socketId = $(this).data('socketid');
+        fetchUserInfo(email, socketId);
+      });
 
       function fetchUserInfo(email, socketId) {
         let query = '';
@@ -333,7 +354,8 @@
         } else if (socketId) {
           query = `socketId=${socketId}`;
         }
-
+        const url = `/userinfo?${query}`;
+        console.log('Request URL:', url);
         $.ajax({
           url: `/userinfo?${query}`,
           type: 'GET',
@@ -344,12 +366,6 @@
             console.error('Error fetching user info:', err);
           }
         });
-      }
-
-      function showPopup(message) {
-        const popup = $('#joinPopup');
-        popup.text(message);
-        popup.fadeIn(500).delay(2000).fadeOut(500); // Show for 2 seconds
       }
     });
   </script>
