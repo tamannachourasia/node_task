@@ -111,21 +111,34 @@ app.post('/addUser', async function(req, res)  {
   res.status(201).send('User added');
 });
 
-app.get('/userinfo', async (req, res) => {
+app.get('/userinfo', async function (req, res) {
+  console.log('Received request to /userinfo'); 
   const { email, socketId } = req.query;
-  let user;
+  console.log('Query Params:', req.query);
+//   let user;
 
-  if (email) {
-    user = await User.findOne({ email });
-  } else if (socketId) {
-    user = await User.findOne({ socketId });
-  }
+//   if (email) {
+//     user = await User.findOne({ email });
+//     console.log('User by email:', user);
+//   } else if (socketId) {
+//     user = await User.findOne({ socketId });
+//     console.log('User by socketId:', user);
+//   }
 
-  if (user) {
-    res.status(200).json(user);
-  } else {
-    res.status(404).send('User not found');
+//   if (user) {
+//     res.status(200).json(user);
+//   } else {
+//     res.status(404).send('User not found');
+//   }
+try {
+  const user = await User.findOne({ email, socketId });
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
   }
+  res.status(200).json(user);
+} catch (error) {
+  res.status(500).json({ error: 'Internal server error' });
+}
 });
 
 
