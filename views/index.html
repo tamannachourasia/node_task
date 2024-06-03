@@ -199,6 +199,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Socket.IO Live User</title>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
@@ -212,49 +213,51 @@
   <h2>Live Users</h2>
   <ul id="liveUsers"></ul>
 
+
   <script>
     const socket = io();
 
-    document.getElementById('userForm').addEventListener('submit', function (e) {
+    $('#userForm').on('submit', function (e) {
       e.preventDefault();
-      const email = document.getElementById('email').value;
-      const name = document.getElementById('name').value;
+      const email = $('#email').val();
+      const name = $('#name').val();
       console.log('Before fetch');
-      fetch('http://localhost:3003/add-user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, name })
-      })
-        .then(response => response.text())
-        .then(data => {
+      $.ajax({
+        url: '/addUser',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ email, name }),
+        success: function (data) {
           socket.emit('join-live-user', { email, name });
-        });
-        
+        },
+        error: function (err) {
+          console.error('Error:', err);
+        }
+      });
     });
 
     socket.on('new-user', function (liveUsers) {
-      const liveUsersList = document.getElementById('liveUsers');
-      liveUsersList.innerHTML = '';
+      const liveUsersList = $('#liveUsers');
+      liveUsersList.empty();
       for (let socketId in liveUsers) {
         const user = liveUsers[socketId];
-        const li = document.createElement('li');
-        li.textContent = `Name: ${user.name}, Email: ${user.email}, Socket ID: ${user.socketId}`;
-        liveUsersList.appendChild(li);
+        const li = $('<li>').text(`Name: ${user.name}, Email: ${user.email}, Socket ID: ${user.socketId}`);
+        liveUsersList.append(li);
       }
     });
 
     socket.on('user-disconnected', function (socketId) {
-      const liveUsersList = document.getElementById('liveUsers');
-      const listItems = liveUsersList.getElementsByTagName('li');
-      for (let i = 0; i < listItems.length; i++) {
-        if (listItems[i].textContent.includes(socketId)) {
-          liveUsersList.removeChild(listItems[i]);
-          break;
+      const liveUsersList = $('#liveUsers');
+      const listItems = liveUsersList.find('li');
+      listItems.each(function () {
+        if ($(this).text().includes(socketId)) {
+          $(this).remove();
+          return false; // break the loop
         }
-      }
+      });
     });
+
+
   </script>
 </body>
 
@@ -269,33 +272,23 @@
   <style>
     .modal {
       display: none;
-      /* Hidden by default */
       position: fixed;
-      /* Stay in place */
       z-index: 1;
-      /* Sit on top */
       left: 0;
       top: 0;
       width: 100%;
-      /* Full width */
       height: 100%;
-      /* Full height */
       overflow: auto;
-      /* Enable scroll if needed */
       background-color: rgb(0, 0, 0);
-      /* Fallback color */
       background-color: rgba(0, 0, 0, 0.4);
-      /* Black w/ opacity */
     }
 
     .modal-content {
       background-color: #fefefe;
       margin: 15% auto;
-      /* 15% from the top and centered */
       padding: 20px;
       border: 1px solid #888;
       width: 80%;
-      /* Could be more or less, depending on screen size */
     }
 
     .close {
@@ -313,6 +306,7 @@
     }
   </style>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
@@ -329,7 +323,7 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    $(document).ready(() => {
       const socket = io();
 
       socket.on('new-user', (users) => {
@@ -337,29 +331,28 @@
       });
 
       socket.on('user-disconnected', (socketId) => {
-        document.getElementById(socketId).remove();
+        $(`#${socketId}`).remove();
       });
 
-      const userList = document.getElementById('userList');
+      const userList = $('#userList');
 
       function displayUsers(users) {
-        userList.innerHTML = ''; // Clear the list
+        userList.empty(); // Clear the list
         for (const id in users) {
           const user = users[id];
-          const userDiv = document.createElement('div');
-          userDiv.id = id;
-          userDiv.innerHTML = `Name: ${user.name}, Email: <a href="#" class="user-info" data-email="${user.email}">${user.email}</a>, Socket ID: <a href="#" class="user-info" data-socketid="${user.socketId}">${user.socketId}</a>`;
-          userList.appendChild(userDiv);
+          const userDiv = $(`
+            <div id="${id}">
+              Name: ${user.name}, Email: <a href="#" class="user-info" data-email="${user.email}">${user.email}</a>, Socket ID: <a href="#" class="user-info" data-socketid="${user.socketId}">${user.socketId}</a>
+            </div>
+          `);
+          userList.append(userDiv);
         }
 
-        const userInfoLinks = document.querySelectorAll('.user-info');
-        userInfoLinks.forEach(link => {
-          link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const email = e.target.getAttribute('data-email');
-            const socketId = e.target.getAttribute('data-socketid');
-            fetchUserInfo(email, socketId);
-          });
+        $('.userinfo').on('click', function (e) {
+          e.preventDefault();
+          const email = $(this).data('email');
+          const socketId = $(this).data('socketid');
+          fetchUserInfo(email, socketId);
         });
       }
 
@@ -371,32 +364,33 @@
           query = `socketId=${socketId}`;
         }
 
-        fetch(`/user-info?${query}`)
-          .then(response => response.json())
-          .then(data => {
+        $.ajax({
+          url: `/userinfo?${query}`,
+          type: 'GET',
+          success: function (data) {
             showUserModal(data);
-          })
-          .catch(error => {
-            console.error('Error fetching user info:', error);
-          });
+          },
+          error: function (err) {
+            console.error('Error fetching user info:', err);
+          }
+        });
       }
 
       function showUserModal(user) {
-        const modal = document.getElementById('userModal');
-        const userInfo = document.getElementById('userInfo');
-        userInfo.innerHTML = `Name: ${user.name}<br>Email: ${user.email}<br>Socket ID: ${user.socketId}`;
-        modal.style.display = 'block';
+        const modal = $('#userModal');
+        const userInfo = $('#userInfo');
+        userInfo.html(`Name: ${user.name}<br>Email: ${user.email}<br>Socket ID: ${user.socketId}`);
+        modal.show();
 
-        const span = document.getElementsByClassName('close')[0];
-        span.onclick = function () {
-          modal.style.display = 'none';
-        }
+        $('.close').on('click', function () {
+          modal.hide();
+        });
 
-        window.onclick = function (event) {
-          if (event.target == modal) {
-            modal.style.display = 'none';
+        $(window).on('click', function (event) {
+          if ($(event.target).is(modal)) {
+            modal.hide();
           }
-        }
+        });
       }
     });
   </script>
