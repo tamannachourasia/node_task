@@ -203,7 +203,7 @@
 </head>
 
 <body>
-  <h1>Join Live User Room</h1>
+  <h2>Enter Registered Details</h2>
   <form id="userForm">
     <input type="email" id="email" placeholder="Email" required>
     <input type="text" id="name" placeholder="Name" required>
@@ -270,39 +270,16 @@
   <meta charset="UTF-8">
   <title>Live Users</title>
   <style>
-    .modal {
-      display: none;
+    .popup {
       position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgb(0, 0, 0);
-      background-color: rgba(0, 0, 0, 0.4);
-    }
-
-    .modal-content {
-      background-color: #fefefe;
-      margin: 15% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-    }
-
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .close:hover,
-    .close:focus {
-      color: black;
-      text-decoration: none;
-      cursor: pointer;
+      right: 20px; /* Adjust as needed */
+      top: 50%; /* Center vertically */
+      transform: translateY(-50%);
+      background-color: green;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      display: none; /* Initially hidden */
     }
   </style>
   <script src="/socket.io/socket.io.js"></script>
@@ -313,14 +290,7 @@
   <h1>Live Users</h1>
   <div id="userList"></div>
 
-  <!-- Popup Modal -->
-  <div id="userModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2>User Information</h2>
-      <p id="userInfo"></p>
-    </div>
-  </div>
+  <div class="popup" id="joinPopup"></div>
 
   <script>
     $(document).ready(() => {
@@ -348,7 +318,7 @@
           userList.append(userDiv);
         }
 
-        $('.userinfo').on('click', function (e) {
+        $('.user-info').on('click', function (e) {
           e.preventDefault();
           const email = $(this).data('email');
           const socketId = $(this).data('socketid');
@@ -368,7 +338,7 @@
           url: `/userinfo?${query}`,
           type: 'GET',
           success: function (data) {
-            showUserModal(data);
+            showPopup(`Joined: ${data.name}`);
           },
           error: function (err) {
             console.error('Error fetching user info:', err);
@@ -376,21 +346,10 @@
         });
       }
 
-      function showUserModal(user) {
-        const modal = $('#userModal');
-        const userInfo = $('#userInfo');
-        userInfo.html(`Name: ${user.name}<br>Email: ${user.email}<br>Socket ID: ${user.socketId}`);
-        modal.show();
-
-        $('.close').on('click', function () {
-          modal.hide();
-        });
-
-        $(window).on('click', function (event) {
-          if ($(event.target).is(modal)) {
-            modal.hide();
-          }
-        });
+      function showPopup(message) {
+        const popup = $('#joinPopup');
+        popup.text(message);
+        popup.fadeIn(500).delay(2000).fadeOut(500); // Show for 2 seconds
       }
     });
   </script>
