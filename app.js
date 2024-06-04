@@ -1,5 +1,4 @@
 const express = require('express');
-const router = express.Router();
 const http = require('http');
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');
@@ -132,5 +131,4 @@ server.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
-module.exports= router;
 module.exports = app;
