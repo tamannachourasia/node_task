@@ -29,7 +29,7 @@ mongoose.connection.on('error', (err) => {
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var serverRouter = require('./routes/server')
-const User=require('./routes/models/user')
+var User=require('./routes/models/user')
 var socketRouter = require('./routes/socket')
 
 
@@ -81,6 +81,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/server', serverRouter);
 app.use('/socket', socketRouter);
+app.use('/USER',User);
 
 // Error handler
 app.use(function (err, req, res, next) {
