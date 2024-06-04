@@ -25,11 +25,11 @@ mongoose.connection.on('error', (err) => {
 });
 
 // Import routers
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var serverRouter = require('./routes/server');
-var User = require('./routes/models/user');
-var socketRouter = require('./routes/socket');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const serverRouter = require('./routes/server');
+const socketRouter = require('./routes/socket');
+const User = require('./routes/models/user');
 
 // Middleware setup
 app.use(logger('dev'));
