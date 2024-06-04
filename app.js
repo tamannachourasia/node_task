@@ -1,4 +1,5 @@
 const express = require('express');
+const router = express.Router();
 const http = require('http');
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');
@@ -30,7 +31,6 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var serverRouter = require('./routes/server')
 const User=require('./routes/models/user')
-const createuserRouter = require('./routes/createuser')
 var socketRouter = require('./routes/socket')
 
 
@@ -81,7 +81,6 @@ app.set('view engine', 'ejs');
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/server', serverRouter);
-app.use('/createuser', createuserRouter);
 app.use('/socket', socketRouter);
 
 // Error handler
@@ -133,4 +132,5 @@ server.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
+module.exports= router;
 module.exports = app;
