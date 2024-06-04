@@ -182,8 +182,8 @@
 
       $.ajax({
         type: 'POST',
-        //url: 'https://node-task-m7sx.onrender.com/server/create',
-        url: 'http://localhost:3003/server/create',
+        url: 'https://node-task-m7sx.onrender.com/server/create',
+        //url: 'http://localhost:3003/server/create',
         contentType: 'application/json',
         data: JSON.stringify(formData),
         success: function (data) {
@@ -199,8 +199,8 @@
 
     $('#showData').on('click', function () {
       $.ajax({
-        //url: 'https://node-task-m7sx.onrender.com/server/display_data',
-        url: 'http://localhost:3003/server/display_data',
+        url: 'https://node-task-m7sx.onrender.com/server/display_data',
+        //url: 'http://localhost:3003/server/display_data',
         method: 'GET',
         success: function (response) {
           let table = '<h2>User Data</h2><table><tr><th>First Name</th><th>Last Name</th><th>Mobile No</th><th>Email</th><th>Street</th><th>City</th><th>State</th><th>Country</th><th>Login ID</th></tr>';
