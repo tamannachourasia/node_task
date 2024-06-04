@@ -24,16 +24,21 @@ mongoose.connection.on('error', (err) => {
   console.log('Error connecting to MongoDB Atlas:', err);
 });
 
-// Middleware setup
-
+// Import routers
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var serverRouter = require('./routes/server')
-var User=require('./routes/models/user')
-var socketRouter = require('./routes/socket')
+var serverRouter = require('./routes/server');
+var User = require('./routes/models/user');
+var socketRouter = require('./routes/socket');
 
+// Middleware setup
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(cors());
 
-// Serve static files from the "views" directory
+// Serve static files
 app.use(express.static(path.join(__dirname, 'views')));
 app.use(express.static('public'));
 
@@ -45,30 +50,20 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
 // Route for serving the HTML file
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
 
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(cors());
-app.use(express.static(path.join(__dirname, 'views')));
-
-// View engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-
+// Use routers
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/server', serverRouter);
 app.use('/socket', socketRouter);
-app.use('/USER',User);
+
+// View engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 // Error handler
 app.use(function (err, req, res, next) {
@@ -78,7 +73,8 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-app.post('/checkUser', async function(req, res)  {
+// Endpoint to check if a user exists
+app.post('/checkUser', async function (req, res) {
   const { email } = req.body;
   const user = await User.findOne({ email });
 
@@ -89,6 +85,7 @@ app.post('/checkUser', async function(req, res)  {
   }
 });
 
+// Socket.IO connection handling
 io.on('connection', (socket) => {
   console.log('New client connected', socket.id);
 
