@@ -25,10 +25,10 @@ mongoose.connection.on('error', (err) => {
 });
 
 // Import routers
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+//const indexRouter = require('./routes/index');
+//const usersRouter = require('./routes/users');
 const serverRouter = require('./routes/server');
-const socketRouter = require('./routes/socket');
+//const socketRouter = require('./routes/socket');
 const User = require('./routes/models/user');
 
 // Middleware setup
@@ -56,10 +56,10 @@ app.get('/', (req, res) => {
 });
 
 // Use routers
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+//app.use('/', indexRouter);
+//app.use('/users', usersRouter);
 app.use('/server', serverRouter);
-app.use('/socket', socketRouter);
+//app.use('/socket', socketRouter);
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
