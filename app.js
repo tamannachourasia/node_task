@@ -29,7 +29,7 @@ mongoose.connection.on('error', (err) => {
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var serverRouter = require('./routes/server')
-//const User=require('./routes/models/user')
+const User=require('./routes/models/user')
 const createuserRouter = require('./routes/createuser')
 var socketRouter = require('./routes/socket')
 
@@ -92,79 +92,34 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-const UserSchema = new mongoose.Schema({
-  email: String,
-  name: String,
-  socketId: String
-});
+app.post('/checkUser', async function(req, res)  {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
 
-const User = mongoose.model('User', UserSchema);
-let liveUsers = {};
-
-app.post('/addUser', async function(req, res)  {
-  console.log('Received request to /add-user');
-  const { email, name } = req.body;
-  console.log('Request body:', req.body); 
-  const newUser = new User({ email, name });
-  const response=await newUser.save();
-  console.log(response)
-  res.status(201).send('User added');
-});
-
-app.get('/userinfo', async function (req, res) {
-  console.log('Received request to /userinfo'); 
-  const { email, socketId } = req.query;
-  console.log('Query Params:', req.query);
-//   let user;
-
-//   if (email) {
-//     user = await User.findOne({ email });
-//     console.log('User by email:', user);
-//   } else if (socketId) {
-//     user = await User.findOne({ socketId });
-//     console.log('User by socketId:', user);
-//   }
-
-//   if (user) {
-//     res.status(200).json(user);
-//   } else {
-//     res.status(404).send('User not found');
-//   }
-try {
-  const user = await User.findOne({ email, socketId });
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
+  if (user) {
+    res.json({ exists: true, user });
+  } else {
+    res.json({ exists: false });
   }
-  res.status(200).json(user);
-} catch (error) {
-  res.status(500).json({ error: 'Internal server error' });
-}
 });
-
-
 
 io.on('connection', (socket) => {
-  console.log('a user connected:', socket.id);
+  console.log('New client connected', socket.id);
 
-  socket.on('join-live-user', async (userData) => {
-    const { email, name } = userData;
-
-    liveUsers[socket.id] = { email, name, socketId: socket.id };
-
-    const user = await User.findOneAndUpdate(
-      { email },
-      { socketId: socket.id },
-      { new: true }
-    );
-
-    socket.join('live user');
-
-    io.to('live user').emit('new-user', liveUsers);
+  socket.on('join-live-user', async ({ email, name }) => {
+    const user = await User.findOneAndUpdate({ email }, { socketId: socket.id }, { new: true });
+    if (user) {
+      io.emit('new-user', user);
+      console.log(`${name} joined with socket ID: ${socket.id}`);
+    }
   });
 
-  socket.on('disconnect', () => {
-    delete liveUsers[socket.id];
-    io.to('live user').emit('user-disconnected', socket.id);
+  socket.on('disconnect', async () => {
+    const user = await User.findOneAndUpdate({ socketId: socket.id }, { socketId: null });
+    if (user) {
+      io.emit('user-disconnected', socket.id);
+      console.log(`User with socket ID ${socket.id} disconnected`);
+    }
   });
 });
 
