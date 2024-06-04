@@ -257,7 +257,7 @@
     const email = $('#formEmail').val();
 
     $.ajax({
-      url: '/checkUser',
+      url: 'https://node-task-m7sx.onrender.com/checkUser',
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify({ email }),
