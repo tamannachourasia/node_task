@@ -57,7 +57,7 @@
     }
 
     table {
-      width: 100%;
+      width: auto;
       border-collapse: collapse;
       margin-top: 20px;
     }
@@ -86,6 +86,20 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       display: none;
     }
+
+    .popup {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #4CAF50; /* Green background */
+      color: white; /* White text */
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      z-index: 9999; /* Ensure it's above other content */
+    }
+
   </style>
   <title>Socket.IO Live User</title>
   <script src="/socket.io/socket.io.js"></script>
@@ -227,7 +241,17 @@
 
 
   const socket = io();
+  socket.on('new-user', function (liveUsers) {
+    const liveUsersList = $('#liveUsers');
+    liveUsersList.empty();
+    for (let socketId in liveUsers) {
+      const user = liveUsers[socketId];
+      const li = $('<li>').text(`Name: ${user.name}, Email: ${user.email}, Socket ID: ${user.socketId}`);
+      liveUsersList.append(li);
 
+    }
+  });
+  
   $('#userForm').on('submit', function (e) {
     e.preventDefault();
     const email = $('#formEmail').val();
@@ -246,6 +270,13 @@
                 <p>Name: ${userData.firstName} ${userData.lastName}</p>
                 <p>Socket ID: ${userData.socketId}</p>
         `).show();
+
+        // Show the popup for 5 seconds
+       const popup = $('<div class="popup">JOINED ' + userData.firstName + ' ' + userData.lastName + '</div>');
+              $('body').append(popup);
+              setTimeout(function () {
+                popup.remove();
+              }, 5000);
           socket.emit('join-live-user', { email: userData.email, name: `${userData.firstName} ${userData.lastName}` });
         } else {
           alert('MAIL does not exist. Firstly register then join room');
@@ -257,17 +288,6 @@
     });
   });
 
-  socket.on('new-user', function (liveUsers) {
-    const liveUsersList = $('#liveUsers');
-    liveUsersList.empty();
-    for (let socketId in liveUsers) {
-      const user = liveUsers[socketId];
-      const li = $('<li>').text(`Name: ${user.name}, Email: ${user.email}, Socket ID: ${user.socketId}`);
-      liveUsersList.append(li);
-
-    }
-  });
-
   socket.on('user-disconnected', function (socketId) {
     const liveUsersList = $('#liveUsers');
     const listItems = liveUsersList.find('li');
@@ -277,7 +297,9 @@
         return false; // break the loop
       }
     });
-  });
+  });  
+
+  
 </script>
 </body>
 
