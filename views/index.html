@@ -1,11 +1,13 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create User</title>
   <style>
-    body, html {
+    body,
+    html {
       height: auto;
       margin: 0;
       display: flex;
@@ -29,14 +31,17 @@
       margin-bottom: 5px;
     }
 
-    input[type="text"], input[type="email"], input[type="password"] {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
       padding: 8px;
       border: 1px solid #ccc;
       border-radius: 5px;
       width: 90%;
     }
 
-    input[type="submit"], button {
+    input[type="submit"],
+    button {
       padding: 10px;
       border: none;
       border-radius: 5px;
@@ -46,7 +51,8 @@
       width: 90%;
     }
 
-    input[type="submit"]:hover, button:hover {
+    input[type="submit"]:hover,
+    button:hover {
       background-color: #45a049;
     }
 
@@ -56,11 +62,14 @@
       margin-top: 20px;
     }
 
-    table, th, td {
+    table,
+    th,
+    td {
       border: 1px solid #ddd;
     }
 
-    th, td {
+    th,
+    td {
       padding: 8px;
       text-align: left;
     }
@@ -68,14 +77,28 @@
     th {
       background-color: #f2f2f2;
     }
+
+    .user-data {
+      width: 250px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
   </style>
+  <title>Socket.IO Live User</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body>
   <form id="createUserForm">
     <h1>Create User</h1>
 
     <label for="firstName">First Name:</label>
-    <input type="text" id="firstName" name="firstName" required pattern="[A-Za-z\s]+" title="Only alphabets are allowed">
+    <input type="text" id="firstName" name="firstName" required pattern="[A-Za-z\s]+"
+      title="Only alphabets are allowed">
 
     <label for="lastName">Last Name:</label>
     <input type="text" id="lastName" name="lastName" required pattern="[A-Za-z\s]+" title="Only alphabets are allowed">
@@ -106,58 +129,69 @@
 
     <input type="submit" value="Save">
     <button type="button" id="showData">Show Data</button>
+    <button type="button" id="joinRoom">Join Room</button>
   </form>
 
-  <div class="user-data"></div>
+  <form id="userForm" style="display:none;">
+    <h2>Enter Registered Details</h2>
+    <input type="email" id="formEmail" placeholder="Email" required>
+    <button type="submit">Join</button>
+  </form>
+
+  <div id="userData" class="user-data"></div>
 </body>
+
 </html>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script>
-    $(document).ready(function () {
-      $('#createUserForm').submit(function (event) {
-        event.preventDefault();
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#createUserForm').show();
+    $('#userForm').hide();
+    $('#createUserForm').submit(function (event) {
+      event.preventDefault();
 
-        const formData = {
-          firstName: $('#firstName').val(),
-          lastName: $('#lastName').val(),
-          mobileNo: $('#mobileNo').val(),
-          email: $('#email').val(),
-          address: {
-            street: $('#street').val(),
-            city: $('#city').val(),
-            state: $('#state').val(),
-            country: $('#country').val()
-          },
-          loginId: $('#loginId').val(),
-          password: $('#password').val()
-        };
+      const formData = {
+        firstName: $('#firstName').val(),
+        lastName: $('#lastName').val(),
+        mobileNo: $('#mobileNo').val(),
+        email: $('#email').val(),
+        address: {
+          street: $('#street').val(),
+          city: $('#city').val(),
+          state: $('#state').val(),
+          country: $('#country').val()
+        },
+        loginId: $('#loginId').val(),
+        password: $('#password').val()
+      };
 
-        $.ajax({
-          type: 'POST',
-          url: 'https://node-task-m7sx.onrender.com/server/create',
-          //url: 'http://localhost:3001/server/create',
-          contentType: 'application/json',
-          data: JSON.stringify(formData),
-          success: function (data) {
-            alert('User created successfully!');
-            $('#createUserForm')[0].reset();
-          },
-          error: function (error) {
-            alert('Error creating user: ');
-          }
-        });
+      $.ajax({
+        type: 'POST',
+        //url: 'https://node-task-m7sx.onrender.com/server/create',
+        url: 'http://localhost:3003/server/create',
+        contentType: 'application/json',
+        data: JSON.stringify(formData),
+        success: function (data) {
+          alert('User created successfully!');
+          $('#createUserForm')[0].reset();
+          $('#userForm').hide();
+        },
+        error: function (error) {
+          alert('Error creating user: ');
+        }
       });
+    });
 
-      $('#showData').on('click', function() {
-        $.ajax({
-          url: 'https://node-task-m7sx.onrender.com/server/display_data',
-          //url: 'http://localhost:3001/server/display_data',
-          method: 'GET',
-          success: function(response) {
-            let table = '<h2>User Data</h2><table><tr><th>First Name</th><th>Last Name</th><th>Mobile No</th><th>Email</th><th>Street</th><th>City</th><th>State</th><th>Country</th><th>Login ID</th></tr>';
-            response.forEach(user => {
-              table += `<tr>
+    $('#showData').on('click', function () {
+      $.ajax({
+        //url: 'https://node-task-m7sx.onrender.com/server/display_data',
+        url: 'http://localhost:3003/server/display_data',
+        method: 'GET',
+        success: function (response) {
+          let table = '<h2>User Data</h2><table><tr><th>First Name</th><th>Last Name</th><th>Mobile No</th><th>Email</th><th>Street</th><th>City</th><th>State</th><th>Country</th><th>Login ID</th></tr>';
+          response.forEach(user => {
+            table += `<tr>
                           <td>${user.firstName}</td>
                           <td>${user.lastName}</td>
                           <td>${user.mobileNo}</td>
@@ -168,207 +202,83 @@
                           <td>${user.address.country}</td>
                           <td>${user.loginId}</td>
                         </tr>`;
-            });
-            table += '</table>';
-            $('.user-data').html(table).show();
-            $('#createUserForm').hide();
-          },
-          error: function(error) {
-            alert('Error fetching users');
-          }
-        });
-        
+          });
+          table += '</table>';
+          $('.user-data').html(table).show();
+          $('#createUserForm').hide();
+          $('#userForm').hide();
+        },
+        error: function (error) {
+          alert('Error fetching users');
+        }
+      });
+
 
       $('#showData').click(function () {
         window.open('https://node-task-m7sx.onrender.com/server/display_data', '_blank');
       });
     });
 
-     });
-  </script>
-</body>
-
-</html>
- -->
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Socket.IO Live User</title>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-
-<body>
-  <h2>Enter Registered Details</h2>
-  <form id="userForm">
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="text" id="name" placeholder="Name" required>
-    <button type="submit">Join</button>
-  </form>
-
-  <h2>Live Users</h2>
-  <ul id="liveUsers"></ul>
+  });
+  $('#joinRoom').click(function () {
+    $('#createUserForm').hide();
+    $('#userForm').show();
+  });
 
 
-  <script>
-    const socket = io();
+  const socket = io();
 
-    $('#userForm').on('submit', function (e) {
-      e.preventDefault();
-      const email = $('#email').val();
-      const name = $('#name').val();
-      
-      $.ajax({
-        url: '/addUser',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ email, name }),
-        success: function (data) {
-          socket.emit('join-live-user', { email, name });
-        },
-        error: function (err) {
-          console.error('Error:', err);
+  $('#userForm').on('submit', function (e) {
+    e.preventDefault();
+    const email = $('#formEmail').val();
+
+    $.ajax({
+      url: '/checkUser',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ email }),
+      success: function (response) {
+        if (response.exists) {
+          const userData = response.user;
+          $('#userData').html(`
+        <h3>User Details</h3>
+                <p>Email: ${userData.email}</p>
+                <p>Name: ${userData.firstName} ${userData.lastName}</p>
+                <p>Socket ID: ${userData.socketId}</p>
+        `).show();
+          socket.emit('join-live-user', { email: userData.email, name: `${userData.firstName} ${userData.lastName}` });
+        } else {
+          alert('MAIL does not exist. Firstly register then join room');
         }
-      });
-    });
-
-    socket.on('new-user', function (liveUsers) {
-      const liveUsersList = $('#liveUsers');
-      liveUsersList.empty();
-      for (let socketId in liveUsers) {
-        const user = liveUsers[socketId];
-        const li = $('<li>').text(`Name: ${user.name}, Email: ${user.email}, Socket ID: ${user.socketId}`);
-        liveUsersList.append(li);
+      },
+      error: function (err) {
+        console.error('Error:', err);
       }
     });
+  });
 
-    socket.on('user-disconnected', function (socketId) {
-      const liveUsersList = $('#liveUsers');
-      const listItems = liveUsersList.find('li');
-      listItems.each(function () {
-        if ($(this).text().includes(socketId)) {
-          $(this).remove();
-          return false; // break the loop
-        }
-      });
-    });
+  socket.on('new-user', function (liveUsers) {
+    const liveUsersList = $('#liveUsers');
+    liveUsersList.empty();
+    for (let socketId in liveUsers) {
+      const user = liveUsers[socketId];
+      const li = $('<li>').text(`Name: ${user.name}, Email: ${user.email}, Socket ID: ${user.socketId}`);
+      liveUsersList.append(li);
 
-
-  </script>
-</body>
-
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <title>Live Users</title>
-  <style>
-    .popup {
-      position: fixed;
-      right: 20px;
-      /* Adjust as needed */
-      top: 50%;
-      /* Center vertically */
-      transform: translateY(-50%);
-      background-color: green;
-      color: white;
-      padding: 10px;
-      border-radius: 5px;
-      display: none;
-      /* Initially hidden */
     }
-  </style>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
+  });
 
-<body>
-  <h1>Live Users</h1>
-  <div id="userList"></div>
-
-  <div class="popup" id="joinPopup">aaabbccc</div>
-
-  <script>
-    $(document).ready(() => {
-      const socket = io();
-
-      socket.on('new-user', (users) => {
-        fetchUserList(users); // Update user list when new user joins
-      });
-
-      socket.on('user-disconnected', (socketId) => {
-        $(`#${socketId}`).remove();
-      });
-
-      const userList = $('#userList');
-
-      function displayUsers(users) {
-        userList.empty(); // Clear the list
-        for (const id in users) {
-          const user = users[id];
-          const userDiv = $(`
-            <div id="${id}">
-              Name: ${user.name}, Email: <a href="#" class="user-info" data-email="${user.email}">${user.email}</a>, Socket ID: <a href="#" class="user-info" data-socketid="${user.socketId}">${user.socketId}</a>
-            </div>
-          `);
-          userList.append(userDiv);
-        }
-
-        // Show the popup after the list is populated
-        showPopup('List loaded successfully.');
-      }
-
-      function showPopup(message) {
-        const popup = $('#joinPopup');
-        popup.text(message);
-        popup.fadeIn(500).delay(2000).fadeOut(500); // Show for 2 seconds
-      }
-
-      // Fetch user list initially
-      function fetchUserList(users) {
-        // Simulating fetching user list data
-        setTimeout(() => {
-          displayUsers(users);
-        }, 1000); // Delay added for simulation, replace with actual data loading code
-      }
-
-      // Click event for user info links
-      $(document).on('click', '.user-info', function (e) {
-        e.preventDefault();
-        const email = $(this).data('email');
-        const socketId = $(this).data('socketid');
-        fetchUserInfo(email, socketId);
-      });
-
-      function fetchUserInfo(email, socketId) {
-        let query = '';
-        if (email) {
-          query = `email=${email}`;
-        } else if (socketId) {
-          query = `socketId=${socketId}`;
-        }
-        const url = `/userinfo?${query}`;
-        console.log('Request URL:', url);
-        $.ajax({
-          url: `/userinfo?${query}`,
-          type: 'GET',
-          success: function (data) {
-            showPopup(`Joined: ${data.name}`);
-          },
-          error: function (err) {
-            console.error('Error fetching user info:', err);
-          }
-        });
+  socket.on('user-disconnected', function (socketId) {
+    const liveUsersList = $('#liveUsers');
+    const listItems = liveUsersList.find('li');
+    listItems.each(function () {
+      if ($(this).text().includes(socketId)) {
+        $(this).remove();
+        return false; // break the loop
       }
     });
-  </script>
+  });
+</script>
 </body>
 
 </html>
