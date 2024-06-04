@@ -60,19 +60,6 @@ app.use(cookieParser());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'views')));
 
-app.use((req, res, next) => {
-  if (req.url.endsWith('.js')) {
-    res.set('Content-Type', 'application/javascript');
-  }
-  next();
-});
-
-// Route for serving the HTML file
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'index.html'));
-});
-
-
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
