@@ -4,14 +4,21 @@ const User = require('./models/user');
 
 // POST request to create a new user
 router.post('/create', async function (req, res) {
+  
   try {
-    const newUser = new User(req.body); 
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    const user = new User(req.body);
+    await user.save();
+    const liveUsers = req.liveUsers; // Access liveUsers from req object
+    const io = req.io; // Access io from req object
+    liveUsers[user.socketId] = user;
+    io.emit('new-user', user);
+    res.status(201).send('User created successfully');
+  } catch (err) {
+    console.error('Error creating user:', err); 
+    res.status(500).send(err.message);
   }
 });
+
 
 // GET request to fetch users
 router.get('/display_data', async function (req, res) {
@@ -23,5 +30,4 @@ router.get('/display_data', async function (req, res) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 module.exports = router;
