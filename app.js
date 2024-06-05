@@ -13,6 +13,7 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 const port = 3003;
+const liveUsers = {};
 
 // MongoDB connection
 mongoose.connect("mongodb+srv://tamannachaurasiya17:5h.bSEUW_Yzs9Vy@tamanna.zpdpqpk.mongodb.net/?retryWrites=true&w=majority&appName=Tamanna");
@@ -28,7 +29,7 @@ mongoose.connection.on('error', (err) => {
 //const indexRouter = require('./routes/index');
 //const usersRouter = require('./routes/users');
 const serverRouter = require('./routes/server');
-//const socketRouter = require('./routes/socket');
+const socketRouter = require('./routes/socket');
 const User = require('./routes/models/user');
 
 // Middleware setup
@@ -58,8 +59,12 @@ app.get('/', (req, res) => {
 // Use routers
 //app.use('/', indexRouter);
 //app.use('/users', usersRouter);
-app.use('/server', serverRouter);
-//app.use('/socket', socketRouter);
+app.use('/server', (req, res, next) => {
+  req.liveUsers = liveUsers;
+  req.io = io;
+  next();
+}, serverRouter);
+app.use('/socket', socketRouter);
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -73,7 +78,7 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-const liveUsers = {};
+
 
 io.on('connection', (socket) => {
   console.log('New client connected', socket.id);
