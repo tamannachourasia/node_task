@@ -254,9 +254,70 @@
     liveUsersList.empty();
     liveUsers.forEach(user => {
       const li = $('<li>').text(`Name: ${user.firstName} ${user.lastName}, Email: ${user.email}, Socket ID: ${user.socketId}`);
+      li.data('userDetails', user);
       liveUsersList.append(li);
     });
+
+    // Add click event listener to each list item
+    $('#liveUsers li').on('click', function () {
+      const userDetails = $(this).data('userDetails');
+      showUserDetailsPopup(userDetails);
+    });
   });
+
+  // Function to show user details in a popup
+  function showUserDetailsPopup(userDetails) {
+    const popupContent = `
+    <div class="user-details-popup">
+      <p><strong>First Name:</strong> ${userDetails.firstName}</p>
+      <p><strong>Last Name:</strong> ${userDetails.lastName}</p>
+      <p><strong>Email:</strong> ${userDetails.email}</p>
+      <p><strong>Mobile No:</strong> ${userDetails.mobileNo || 'N/A'}</p>
+      <p><strong>Address:</strong></p>
+      <ul>
+        <li><strong>Street:</strong> ${userDetails.address.street || 'N/A'}</li>
+        <li><strong>City:</strong> ${userDetails.address.city || 'N/A'}</li>
+        <li><strong>State:</strong> ${userDetails.address.state || 'N/A'}</li>
+        <li><strong>Country:</strong> ${userDetails.address.country || 'N/A'}</li>
+      </ul>
+      <p><strong>Login ID:</strong> ${userDetails.loginId || 'N/A'}</p>
+      <button id="closePopup">Close</button>
+    </div>
+  `;
+
+    // Append the popup to the body
+    const popup = $(popupContent);
+    $('body').append(popup);
+
+    // Add click event listener to the close button
+    $('#closePopup').on('click', function () {
+      popup.remove();
+    });
+  }
+
+  const style = `
+  <style>
+    .user-details-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      background-color: white;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+    .user-details-popup p {
+      margin: 10px 0;
+    }
+    #closePopup {
+      margin-top: 20px;
+    }
+  </style>
+`;
+
+  $('head').append(style);
 
 
   $('#userForm').on('submit', function (e) {
@@ -294,7 +355,7 @@
           $('body').append(popup);
           setTimeout(function () {
             popup.remove();
-          }, 5000);
+          }, 2000);
         } else {
           alert('MAIL does not exist. Firstly register then join room');
         }
