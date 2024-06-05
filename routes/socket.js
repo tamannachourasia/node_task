@@ -1,19 +1,39 @@
-// const express = require('express');
-// const router = express.Router();
-// const User = require('./models/user');
+const express = require('express');
+const router = express.Router();
+const User = require('./models/user');
 
-// router.post('/join', (req, res) => {
-//   const { email, name, socketId } = req.body;
-//   const newUser = new User({ email, name, socketId });
-//   newUser.save()
-//     .then(() => res.status(201).send('User joined the room'))
-//     .catch(err => res.status(400).send('Error joining the room: ' + err));
-// });
+// Assuming you have a route for handling the 'Join Room' form
+router.post('/joinRoom', async (req, res) => {
+  const { email } = req.body;
+  try {
+    // Find all users with the entered email
+    const users = await User.find({ email });
 
-// router.get('/users', (req, res) => {
-//   User.find()
-//     .then(users => res.json(users))
-//     .catch(err => res.status(400).send('Error fetching users: ' + err));
-// });
+    if (users.length > 0) {
+      // Display details for all users with the entered email
+      console.log('Users:', users);
 
-// module.exports = router;
+      // Extract relevant user details
+      const userData = users.map(user => ({
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        socketId: user.socketId
+      }));
+
+      // Show a popup indicating 'JOINED [Email]'
+      const joinedPopup = `JOINED ${email}`;
+      console.log(joinedPopup);
+
+      // Send the response with user details and popup message
+      res.status(200).json({ users: userData, message: joinedPopup });
+    } else {
+      // If no users found, send an error response
+      res.status(404).json({ error: 'No users found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+module.exports = router;
