@@ -73,38 +73,61 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-// Endpoint to check if a user exists
-app.post('/checkUser', async function (req, res) {
-  const { email } = req.body;
-  const user = await User.findOne({ email });
-
-  if (user) {
-    res.json({ exists: true, user });
-  } else {
-    res.json({ exists: false });
-  }
-});
-
 // Socket.IO connection handling
 io.on('connection', (socket) => {
   console.log('New client connected', socket.id);
 
   socket.on('join-live-user', async ({ email, name }) => {
-    const user = await User.findOneAndUpdate({ email }, { socketId: socket.id }, { new: true });
-    if (user) {
-      io.emit('new-user', user);
-      console.log(`${name} joined with socket ID: ${socket.id}`);
+    try {
+      const user = await User.findOneAndUpdate(
+        { email },
+        { socketId: socket.id },
+        { new: true } 
+      );
+
+      if (user) {
+        io.emit('new-user', user);
+        console.log(`${name} joined with socket ID: ${socket.id}`);
+      }
+    } catch (error) {
+      console.error('Error updating user socket ID:', error);
     }
-  });
+  })
 
   socket.on('disconnect', async () => {
-    const user = await User.findOneAndUpdate({ socketId: socket.id }, { socketId: null });
-    if (user) {
-      io.emit('user-disconnected', socket.id);
-      console.log(`User with socket ID ${socket.id} disconnected`);
+    try {
+      const user = await User.findOneAndUpdate(
+        { socketId: socket.id },
+        { socketId: null }
+      );
+
+      if (user) {
+        io.emit('user-disconnected', socket.id);
+        console.log(`User with socket ID ${socket.id} disconnected`);
+      }
+    } catch (error) {
+      console.error('Error handling user disconnect:', error);
     }
   });
 });
+
+app.post('/checkUser', async (req, res) => {
+  const { email, socketId } = req.body; // Ensure socketId is included in the request
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      // Update the user's socket ID if they exist
+      user.socketId = socketId;
+      await user.save();
+      res.json({ exists: true, user });
+    } else {
+      res.json({ exists: false });
+    }
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
