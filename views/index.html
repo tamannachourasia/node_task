@@ -248,14 +248,14 @@
 
 
   const socket = io();
-  socket.on('new-user', function (liveUsers) {
+
+  socket.on('update-live-users', function (liveUsers) {
     const liveUsersList = $('#liveUsers');
     liveUsersList.empty();
-    for (let socketId in liveUsers) {
-      const user = liveUsers[socketId];
+    liveUsers.forEach(user => {
       const li = $('<li>').text(`Name: ${user.firstName} ${user.lastName}, Email: ${user.email}, Socket ID: ${user.socketId}`);
       liveUsersList.append(li);
-    }
+    });
   });
 
 
@@ -265,8 +265,8 @@
     const socketId = socket.id;
 
     $.ajax({
-      //url: '/checkUser',
-      url: 'https://node-task-m7sx.onrender.com/checkUser',
+      url: '/checkUser',
+      //url: 'https://node-task-m7sx.onrender.com/checkUser',
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify({ email, socketId }),
@@ -277,8 +277,8 @@
 
           // After emitting the event, fetch the updated user data again
           $.ajax({
-            //url: '/checkUser',
-            url: 'https://node-task-m7sx.onrender.com/checkUser',
+            url: '/checkUser',
+            //url: 'https://node-task-m7sx.onrender.com/checkUser',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ email, socketId }),
@@ -319,17 +319,9 @@
     });
   });
 
-  socket.on('user-disconnected', function (liveUsers) {
-    const liveUsersList = $('#liveUsers');
-    liveUsersList.empty();
-    for (let socketId in liveUsers) {
-      const user = liveUsers[socketId];
-      const li = $('<li>').text(`Name: ${user.firstName} ${user.lastName}, Email: ${user.email}, Socket ID: ${user.socketId}`);
-      liveUsersList.append(li);
-    }
+  socket.on('user-disconnected', function (socketId) {
+    $(`#liveUsers li:contains('${socketId}')`).remove();
   });
-
-
 
 </script>
 </body>
