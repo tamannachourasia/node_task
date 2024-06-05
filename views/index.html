@@ -265,39 +265,45 @@
     const socketId = socket.id;
 
     $.ajax({
-    url: '/checkUser',
-    type: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify({ email, socketId }),
-    success: function (response) {
-      if (response.exists) {
-        const userData = response.user;
-        socket.emit('join-live-user', { email: userData.email, name: `${userData.firstName} ${userData.lastName}`, socketId });
+      url: '/checkUser',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ email, socketId }),
+      success: function (response) {
+        if (response.exists) {
+          const userData = response.user;
+          socket.emit('join-live-user', { email: userData.email, name: `${userData.firstName} ${userData.lastName}`, socketId });
 
-        // Hide the form and display user details
-        $('#userForm').hide();
-        $('#userData').html(`
-          <h3>Live Users</h3>
-          <p>Email: ${userData.email}</p>
-          <p>Name: ${userData.firstName} ${userData.lastName}</p>
-          <p>Socket ID: ${userData.socketId}</p>
-        `).show();
+          // Hide the form and display user details
+          $('#userForm').hide();
+          // Listen for updated live users list
+          socket.on('updated-live-users', function (liveUsers) {
+            // Display details of all live users
+            $('#userData').html(`
+                  <h3>Live Users</h3>
+                  ${Object.values(liveUsers).map(user => `
+                  <p>Email: ${user.email}</p>
+                  <p>Name: ${user.firstName} ${user.lastName}</p>
+                <p>Socket ID: ${user.socketId}</p>
+              `).join('')}
+            `).show();
+          });
 
-        // Show the popup for 5 seconds
-        const popup = $('<div class="popup">JOINED ' + userData.firstName + ' ' + userData.lastName + 'SocketID' + userData.socketId + '</div>');
-        $('body').append(popup);
-        setTimeout(function () {
-          popup.remove();
-        }, 5000);
-      } else {
-        alert('MAIL does not exist. Firstly register then join room');
+          // Show the popup for 5 seconds
+          const popup = $('<div class="popup">JOINED ' + userData.firstName + ' ' + userData.lastName + 'SocketID' + userData.socketId + '</div>');
+          $('body').append(popup);
+          setTimeout(function () {
+            popup.remove();
+          }, 5000);
+        } else {
+          alert('MAIL does not exist. Firstly register then join room');
+        }
+      },
+      error: function (err) {
+        console.error('Error:', err);
       }
-    },
-    error: function (err) {
-      console.error('Error:', err);
-    }
-  });
-})
+    });
+  })
   socket.on('user-disconnected', function (socketId) {
     $(`#liveUsers li:contains('${socketId}')`).remove();
   });
