@@ -73,30 +73,22 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-// Socket.IO connection handling
+const liveUsers = {};
+
 io.on('connection', (socket) => {
   console.log('New client connected', socket.id);
 
-  // Handle new user joining
-  socket.on('join-live-user', async ({ email, name }) => {
+  socket.on('join-live-user', async ({ email, name, socketId }) => {
     try {
       const user = await User.findOneAndUpdate(
         { email },
         { socketId: socket.id },
-        { new: true }
+        { new: true } 
       );
 
       if (user) {
-        // Update the liveUsers object
-        liveUsers[socket.id] = {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          socketId: user.socketId
-        };
-
-        // Emit the updated list of live users to all clients
-        io.emit('new-user', liveUsers);
+        liveUsers[socket.id] = user;
+        io.emit('update-live-users', Object.values(liveUsers));
         console.log(`${name} joined with socket ID: ${socket.id}`);
       }
     } catch (error) {
@@ -104,7 +96,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Handle user disconnect
   socket.on('disconnect', async () => {
     try {
       const user = await User.findOneAndUpdate(
@@ -113,11 +104,8 @@ io.on('connection', (socket) => {
       );
 
       if (user) {
-        // Remove the user from the liveUsers object
         delete liveUsers[socket.id];
-
-        // Emit the updated list of live users to all clients
-        io.emit('user-disconnected', liveUsers);
+        io.emit('update-live-users', Object.values(liveUsers));
         console.log(`User with socket ID ${socket.id} disconnected`);
       }
     } catch (error) {
@@ -125,6 +113,7 @@ io.on('connection', (socket) => {
     }
   });
 });
+
 
 app.post('/checkUser', async (req, res) => {
   const { email, socketId } = req.body;
