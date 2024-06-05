@@ -77,23 +77,34 @@ app.use(function (err, req, res, next) {
 io.on('connection', (socket) => {
   console.log('New client connected', socket.id);
 
+  // Handle new user joining
   socket.on('join-live-user', async ({ email, name }) => {
     try {
       const user = await User.findOneAndUpdate(
         { email },
         { socketId: socket.id },
-        { new: true } 
+        { new: true }
       );
 
       if (user) {
-        io.emit('new-user', user);
+        // Update the liveUsers object
+        liveUsers[socket.id] = {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          socketId: user.socketId
+        };
+
+        // Emit the updated list of live users to all clients
+        io.emit('new-user', liveUsers);
         console.log(`${name} joined with socket ID: ${socket.id}`);
       }
     } catch (error) {
       console.error('Error updating user socket ID:', error);
     }
-  })
+  });
 
+  // Handle user disconnect
   socket.on('disconnect', async () => {
     try {
       const user = await User.findOneAndUpdate(
@@ -102,7 +113,11 @@ io.on('connection', (socket) => {
       );
 
       if (user) {
-        io.emit('user-disconnected', socket.id);
+        // Remove the user from the liveUsers object
+        delete liveUsers[socket.id];
+
+        // Emit the updated list of live users to all clients
+        io.emit('user-disconnected', liveUsers);
         console.log(`User with socket ID ${socket.id} disconnected`);
       }
     } catch (error) {
@@ -112,13 +127,14 @@ io.on('connection', (socket) => {
 });
 
 app.post('/checkUser', async (req, res) => {
-  const { email, socketId } = req.body; // Ensure socketId is included in the request
+  const { email, socketId } = req.body;
   try {
     const user = await User.findOne({ email });
     if (user) {
-      // Update the user's socket ID if they exist
       user.socketId = socketId;
       await user.save();
+      liveUsers[socketId] = user;
+      io.emit('new-user', liveUsers); // Broadcast updated live users list to all clients
       res.json({ exists: true, user });
     } else {
       res.json({ exists: false });
