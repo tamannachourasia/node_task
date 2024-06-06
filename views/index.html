@@ -350,7 +350,7 @@
             `).show();
           });
           // Display popup
-          displayPopup(userData.email);
+          displayPopup(userData.firstName,userData.lastName);
 
         } else {
           alert('MAIL does not exist. Firstly register then join room');
@@ -362,8 +362,8 @@
     });
   })
   // Function to display the popup
-  function displayPopup(email) {
-    const popup = $('<div class="popup">JOINED ' + email + '</div>');
+  function displayPopup(firstName,lastName) {
+    const popup = $('<div class="popup">JOINED ' + firstName+' '+ lastName + '</div>');
     $('body').append(popup);
 
     // Remove the popup after 3 seconds
