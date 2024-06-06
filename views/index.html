@@ -349,13 +349,9 @@
               `).join('')}
             `).show();
           });
+          // Display popup
+          displayPopup(userData.email);
 
-          // Show the popup for 5 seconds
-          const popup = $('<div class="popup">JOINED ' + userData.firstName + ' ' + userData.lastName + 'SocketID' + userData.socketId + '</div>');
-          $('body').append(popup);
-          setTimeout(function () {
-            popup.remove();
-          }, 2000);
         } else {
           alert('MAIL does not exist. Firstly register then join room');
         }
@@ -365,6 +361,17 @@
       }
     });
   })
+  // Function to display the popup
+  function displayPopup(email) {
+    const popup = $('<div class="popup">JOINED ' + email + '</div>');
+    $('body').append(popup);
+
+    // Remove the popup after 3 seconds
+    setTimeout(() => {
+      popup.remove();
+    }, 3000);
+  }
+
   socket.on('user-disconnected', function (socketId) {
     $(`#liveUsers li:contains('${socketId}')`).remove();
   });
